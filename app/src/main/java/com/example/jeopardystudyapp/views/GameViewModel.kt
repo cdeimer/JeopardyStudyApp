@@ -3,6 +3,7 @@ package com.example.jeopardystudyapp.views
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.jeopardystudyapp.data.AnswerLog
 import com.example.jeopardystudyapp.data.AppDatabase
 import com.example.jeopardystudyapp.data.Clue
 import com.example.jeopardystudyapp.data.ClueSettings
@@ -59,6 +60,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Text from answer log
+    private val _lastSeenText = MutableStateFlow<String?>(null)
+    val lastSeenText: StateFlow<String?> = _lastSeenText.asStateFlow()
+
     // Game Mode Control
     private var currentGameMode: GameMode = GameMode.Random
 
@@ -67,7 +72,37 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _currentClue.value = null
         nextClue = null
         _isStarred.value = false
+        _lastSeenText.value = null
         startGame() // Reset and fetch new cards immediately
+    }
+
+    // 1. Call this whenever a new card loads (inside advanceToNextClue or startGame)
+    private suspend fun checkLastSeen(clueId: Int) {
+        val log = dao.getLastLog(clueId)
+        if (log != null) {
+            val timeAgo = formatRelativeTime(log.timestamp)
+            _lastSeenText.value = "Last seen: $timeAgo (${log.result})"
+        } else {
+            _lastSeenText.value = null // Never seen before
+        }
+    }
+
+    // 2. Call this when the user clicks buttons
+    fun logAnswer(result: String) {
+        val clue = _currentClue.value ?: return
+
+        viewModelScope.launch {
+            // Write to DB
+            dao.insertLog(
+                AnswerLog(
+                    clueId = clue.id!!,
+                    result = result,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+            // Trigger next card
+            advanceToNextClue()
+        }
     }
 
     // --- INIT ---
@@ -87,7 +122,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _currentClue.value = first
             nextClue = second
 
-            first.id?.let { checkStarStatus(it) }
+            first.id?.let { id ->
+                checkStarStatus(id)
+                checkLastSeen(id)
+            }
 
             _isAnswerVisible.value = false
             _isLoading.value = false
@@ -104,19 +142,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         // Add value to score (default to 0 if null)
         val value = _currentClue.value?.value ?: 0
         _score.value += value
-        advanceToNextClue()
+        logAnswer("CORRECT")
     }
 
     fun onWrong() {
         // Subtract value from score
         val value = _currentClue.value?.value ?: 0
         _score.value -= value
-        advanceToNextClue()
+        logAnswer("INCORRECT")
     }
 
     fun onSkip() {
         // No score change
-        advanceToNextClue()
+        logAnswer("SKIPPED")
     }
 
     // --- INTERNAL LOGIC ---
@@ -125,6 +163,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun checkStarStatus(clueId: Int) {
         val status = dao.isClueStarred(clueId) ?: false // Returns true/false or null
         _isStarred.value = status
+    }
+
+    // Helper function to format time from answer log
+    private fun formatRelativeTime(timestamp: Long): String {
+        val now = System.currentTimeMillis()
+        val diff = now - timestamp
+
+        // Simple conversion constants
+        val oneMinute = 60 * 1000L
+        val oneHour = 60 * oneMinute
+        val oneDay = 24 * oneHour
+
+        return when {
+            diff < oneMinute -> "Just now"
+            diff < oneHour -> "${diff / oneMinute}m ago"
+            diff < oneDay -> "${diff / oneHour}h ago"
+            else -> "${diff / oneDay}d ago"
+        }
     }
 
     // Helper: Decides which clue to fetch based on the mode
@@ -158,6 +214,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             // We use safe calls (?.) so it doesn't crash if something went wrong
             _currentClue.value?.id?.let { id ->
                 checkStarStatus(id)
+                checkLastSeen(id)
             }
 
             // --- STEP 2: Reset UI State ---

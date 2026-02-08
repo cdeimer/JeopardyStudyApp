@@ -24,7 +24,7 @@ data class AnswerLog(
     val clueId: Int,
 
     @ColumnInfo(name = "result")
-    val result: String, // "RIGHT", "WRONG", "SKIPPED"
+    val result: String, // "CORRECT", "INCORRECT", "SKIPPED"
 
     @ColumnInfo(name = "timestamp")
     val timestamp: Long = System.currentTimeMillis()

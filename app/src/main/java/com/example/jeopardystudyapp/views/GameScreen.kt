@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +24,7 @@ fun GameScreen(
     val score by viewModel.score.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isStarred by viewModel.isStarred.collectAsState()
+    val lastSeen by viewModel.lastSeenText.collectAsState()
 
     // 2. The Main Layout
     Column(
@@ -61,12 +63,27 @@ fun GameScreen(
             if (isLoading && clue == null) {
                 CircularProgressIndicator(color = Color.White)
             } else {
-                JeopardyCard(
-                    clue = clue,
-                    isAnswerVisible = isAnswerVisible,
-                    isStarred = isStarred,
-                    onToggleStar = { viewModel.toggleStar() }
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Only show if text exists
+                    if (lastSeen != null) {
+                        Text(
+                            text = lastSeen!!,
+                            color = Color.White.copy(alpha = 0.7f), // Subtle/Dim
+                            fontSize = 12.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    JeopardyCard(
+                        clue = clue,
+                        isAnswerVisible = isAnswerVisible,
+                        isStarred = isStarred,
+                        onToggleStar = { viewModel.toggleStar() }
+                    )
+                }
             }
         }
 

@@ -22,6 +22,10 @@ interface ClueDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertLog(log: AnswerLog)
 
+    // Get the most recent log entry for a clue
+    @Query("SELECT * FROM answer_log WHERE clue_id = :clueId ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLastLog(clueId: Int): AnswerLog?
+
     // Check if a specific clue is starred
     @Query("SELECT is_starred FROM clue_settings WHERE clue_id = :clueId")
     suspend fun isClueStarred(clueId: Int): Boolean?
