@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.jeopardystudyapp"
+    namespace = "com.cdeimer.jeopardystudyapp"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.jeopardystudyapp"
+        applicationId = "com.cdeimer.jeopardystudyapp"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
