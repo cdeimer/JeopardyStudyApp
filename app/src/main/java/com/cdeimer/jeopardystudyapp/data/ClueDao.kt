@@ -70,4 +70,8 @@ interface ClueDao {
         ORDER BY rightCount DESC, wrongCount ASC
     """)
     fun getCategoryStats(): Flow<List<CategoryStat>>
+
+    // Get all logs since a specific time (for the graph)
+    @Query("SELECT * FROM answer_log WHERE timestamp >= :cutoff ORDER BY timestamp ASC")
+    fun getLogsSince(cutoff: Long): Flow<List<AnswerLog>>
 }

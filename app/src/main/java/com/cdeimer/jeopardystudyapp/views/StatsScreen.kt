@@ -30,6 +30,7 @@ fun StatsScreen(
     val today by viewModel.todayStats.collectAsState()
     val bestCats by viewModel.bestCategories.collectAsState()
     val worstCats by viewModel.worstCategories.collectAsState()
+    val graphData by viewModel.graphData.collectAsState()
 
     Scaffold(
         topBar = {
@@ -62,21 +63,23 @@ fun StatsScreen(
                 }
             }
 
-            // 2. GRAPH PLACEHOLDER
+            // 2. GRAPH Section
             item {
-                Text("Accuracy Over Time", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Last 7 Days Accuracy", color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // The Container
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(220.dp) // Little taller for labels
                         .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                        .background(Color(0xFF1A1A1A), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF1A1A1A), RoundedCornerShape(8.dp))
                 ) {
-                    Text(
-                        text = "Graph Coming Soon",
-                        color = Color.Gray
+                    // The Graph
+                    LineGraph(
+                        data = graphData,
+                        modifier = Modifier.fillMaxSize().padding(bottom = 20.dp) // Padding for text
                     )
                 }
             }
