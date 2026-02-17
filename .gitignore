@@ -1,15 +1,31 @@
+# --- Android Studio / IntelliJ ---
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches/deviceStreaming.xml
+.idea/assetWizardSettings.xml
+
+# --- Gradle & Build ---
+.gradle/
+build/
+app/build/
+app/release/
+!gradle/wrapper/gradle-wrapper.jar  # Never ignore the wrapper jar
+
+# --- Local Configuration (SENSITIVE) ---
 local.properties
+
+# --- OS Junk ---
+.DS_Store
+Thumbs.db
+
+# --- Android Artifacts ---
+*.apk
+*.aab
+*.jks
+
+# --- App Specific ---
+captures/
