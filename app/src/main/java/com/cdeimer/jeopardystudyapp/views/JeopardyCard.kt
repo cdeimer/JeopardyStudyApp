@@ -31,6 +31,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.font.FontStyle
 import com.cdeimer.jeopardystudyapp.data.Clue
+import androidx.compose.ui.platform.LocalUriHandler
+import com.cdeimer.jeopardystudyapp.utils.ClueParser
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.runtime.remember
 
 @Composable
 fun JeopardyCard(
@@ -58,6 +62,9 @@ fun JeopardyCard(
                     color = Color.White
                 )
             } else {
+                val parsedData = remember(clue.question) {
+                    ClueParser.parse(clue.question ?: "")
+                }
                 // --- 1. The Main Content (Same as before) ---
                 Column(
                     modifier = Modifier
@@ -88,7 +95,7 @@ fun JeopardyCard(
                     // Question
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                         Text(
-                            text = clue.question?.uppercase() ?: "",
+                            text = parsedData.cleanText.uppercase(),
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -130,6 +137,18 @@ fun JeopardyCard(
                         contentDescription = "Star this clue",
                         tint = if (isStarred) Color(0xFFD69F4C) else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                if (parsedData.mediaUrl != null) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Media Missing",
+                        tint = Color(0xFFFFD700), // Gold/Yellow Warning Color
+                        modifier = Modifier
+                            .align(Alignment.TopStart) // Opposite side of Star
+                            .padding(16.dp) // Little extra padding since it's not a button anymore
+                            .size(24.dp) // Slightly smaller than the star button
                     )
                 }
             }

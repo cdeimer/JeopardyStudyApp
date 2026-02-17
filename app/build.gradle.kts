@@ -14,8 +14,8 @@ android {
         applicationId = "com.cdeimer.jeopardystudyapp"
         minSdk = 35
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -54,6 +54,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(libs.coil.compose)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
